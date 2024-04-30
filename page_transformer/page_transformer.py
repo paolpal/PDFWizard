@@ -1,4 +1,4 @@
-import PyPDF2
+import pypdf
 import copy
 from tqdm import tqdm
 import io
@@ -21,7 +21,7 @@ PAGE_SIZES = {
 }
 
 def new_page(width, height):
-	page = PyPDF2._page.PageObject.create_blank_page(None, width, height)
+	page = pypdf._page.PageObject.create_blank_page(None, width, height)
 	return page
 
 def resize(page, width, height, size, bleed):
@@ -67,26 +67,25 @@ def modify(page, width, height, size, bleed):
 
 	bleed_template = new_page(new_width, new_height)
 	bleed_template.merge_page(page)
-	bleed_template.compress_content_streams()
 
 	for transformation in transformations:
 		new_bleed = copy.copy(bleed_template)
 		new_bleed.add_transformation(transformation)
 		new.merge_page(new_bleed)
 		del new_bleed
-	
 	return new
 
 def bleed_and_resize(input_content, size, bleed):
-	reader = PyPDF2.PdfReader(io.BytesIO(input_content))
-	writer = PyPDF2.PdfWriter()
+	reader = pypdf.PdfReader(io.BytesIO(input_content))
+	writer = pypdf.PdfWriter()
 	output = io.BytesIO()
 	
-	for page in tqdm((reader.pages), desc="Editing Pages"):
+	for page in tqdm(reader.pages, desc="Editing Pages"):
 		width = page.mediabox.width
 		height = page.mediabox.height
 		new = modify(page, width, height, size, bleed)
 		writer.add_page(new)
+		writer.pages[-1].compress_content_streams()
 		del new
 
 	writer.write(output)
