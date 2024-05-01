@@ -3,149 +3,102 @@ from tqdm import tqdm
 import io
 
 class PDFBleeder:
-    def __init__(self, document_stream, v_mirrored_stream, h_mirrored_stream, b_mirrored_stream):
-        self.document_stream = document_stream
-        self.v_mirrored_stream = v_mirrored_stream
-        self.h_mirrored_stream = h_mirrored_stream
-        self.b_mirrored_stream = b_mirrored_stream
+	def __init__(self, document_stream, v_mirrored_stream, h_mirrored_stream, b_mirrored_stream):
+		self.document_stream = document_stream
+		self.v_mirrored_stream = v_mirrored_stream
+		self.h_mirrored_stream = h_mirrored_stream
+		self.b_mirrored_stream = b_mirrored_stream
 
-    def create_document(self, stream):
-        return fitz.open(stream=stream, filetype="pdf")
+	def create_document(self, stream):
+		return fitz.open(stream=stream, filetype="pdf")
 
-    def bleeding(self, bleed):
-        # Crea i documenti da ogni stream
-        document = self.create_document(self.document_stream)
-        v_mirrored = self.create_document(self.v_mirrored_stream)
-        h_mirrored = self.create_document(self.h_mirrored_stream)
-        b_mirrored = self.create_document(self.b_mirrored_stream)
+	def bleeding(self, bleed, ratio=1, offset=(0,0)):
+		# Crea i documenti da ogni stream
+		document = self.create_document(self.document_stream)
+		v_mirrored = self.create_document(self.v_mirrored_stream)
+		h_mirrored = self.create_document(self.h_mirrored_stream)
+		b_mirrored = self.create_document(self.b_mirrored_stream)
 
-        # Crea il documento combinato
-        combined_document = fitz.open()
+		# Crea il documento combinato
+		combined_document = fitz.open()
+		dx,dy = offset
 
-        # Itera attraverso le pagine e unisci pagina per pagina
-        for page in tqdm(document, desc="Bleeding"):
-            width = page.rect.width
-            height = page.rect.height
+		# Itera attraverso le pagine e unisci pagina per pagina
+		for page in tqdm(document, desc="Bleeding"):
+			target_width = page.rect.width
+			target_height = page.rect.height
 
-            combined_page = combined_document.new_page(-1,
-                           width = width + 2*bleed,
-                           height = height + 2*bleed)
+			original_width = h_mirrored[page.number].rect.width
+			original_height = h_mirrored[page.number].rect.height
+			
+			dx = abs(ratio*original_width-target_width)/2
+			dy = abs(ratio*original_height-target_height)/2
+			
+			actual_width = ratio*original_width
+			actual_height = ratio*original_height
 
-            #for doc in [document, v_mirrored, h_mirrored, b_mirrored]:
-            combined_page.show_pdf_page(
-                page.rect+bleed, 
-                document,  # input document
-                page.number,  # input page number
-            )
+			w_bleed = bleed + dx
+			h_bleed = bleed + dy
 
-            # left bleed
-            dest = fitz.Rect(0, bleed, bleed, height+bleed)
-            clip = fitz.Rect(width-bleed, 0, width, height)
+			combined_page = combined_document.new_page(-1,
+						   width = target_width + 2*bleed,
+						   height = target_height + 2*bleed)
 
-            combined_page.show_pdf_page(
-                dest, 
-                h_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+			combined_page.show_pdf_page(
+				page.rect + bleed, 
+				document,  # input document
+				page.number,  # input page number
+			)
 
-            # right bleed
-            dest = fitz.Rect(width+bleed, bleed, width+2*bleed, height+bleed)
-            clip = fitz.Rect(0, 0, bleed, height)
+			bleed_transformations = [
+				(fitz.Rect(0, h_bleed, w_bleed, actual_height+h_bleed), 
+				fitz.Rect(original_width-(w_bleed/ratio), 0, original_width, original_height), 
+				h_mirrored), # left bleed
 
-            combined_page.show_pdf_page(
-                dest, 
-                h_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+				(fitz.Rect(actual_width+w_bleed, h_bleed, actual_width+2*w_bleed, actual_height+h_bleed), 
+				fitz.Rect(0, 0, (w_bleed/ratio), original_height), 
+				h_mirrored), # right bleed
 
-            # top bleed
-            dest = fitz.Rect(bleed, 0, width+bleed, bleed)
-            clip = fitz.Rect(0, height-bleed, width, height)
+				(fitz.Rect(w_bleed, 0, actual_width+w_bleed, h_bleed),
+				fitz.Rect(0, original_height-(h_bleed/ratio), original_width, original_height),
+				v_mirrored), # top bleed
 
-            combined_page.show_pdf_page(
-                dest, 
-                v_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+				(fitz.Rect(w_bleed, actual_height+h_bleed, actual_width+w_bleed, actual_height+2*h_bleed),
+				fitz.Rect(0, 0, original_width, (h_bleed/ratio)),
+				v_mirrored), # bottom bleed
 
-            # bottom bleed
-            dest = fitz.Rect(bleed, height+bleed, width+bleed, height+2*bleed)
-            clip = fitz.Rect(0, 0, width, bleed)
+				(fitz.Rect(0, 0, w_bleed, h_bleed),
+				fitz.Rect(original_width-(w_bleed/ratio), original_height-(h_bleed/ratio), original_width, original_height),
+				b_mirrored), # Top Left bleed
 
-            combined_page.show_pdf_page(
-                dest, 
-                v_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+				(fitz.Rect(actual_width+w_bleed, actual_height+h_bleed, actual_width+2*w_bleed, actual_height+2*h_bleed),
+				fitz.Rect(0, 0, (w_bleed/ratio), (h_bleed/ratio)),
+				b_mirrored), # Bottom Right bleed
 
-            # Corners
-            # Top Left bleed
-            dest = fitz.Rect(0, 0, bleed, bleed)
-            clip = fitz.Rect(width-bleed, height-bleed, width, height)
+				(fitz.Rect(actual_width+w_bleed, 0, actual_width+2*w_bleed, h_bleed),
+				fitz.Rect(0, original_height-(h_bleed/ratio), (w_bleed/ratio), original_height),
+				b_mirrored), # Top Right bleed
 
-            combined_page.show_pdf_page(
-                dest, 
-                b_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+				# Bottom Left bleed
+				(fitz.Rect(0, actual_height+h_bleed, w_bleed, actual_height+2*h_bleed),
+				fitz.Rect(original_width-(w_bleed/ratio), 0, original_width, (h_bleed/ratio)),
+				b_mirrored) # Bottom Left bleed
 
-            # Bottom Right bleed
-            dest = fitz.Rect(width+bleed, height+bleed, width+2*bleed, height+2*bleed)
-            clip = fitz.Rect(0, 0, bleed, bleed)
+			]
 
-            combined_page.show_pdf_page(
-                dest, 
-                b_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+			for dest, clip, doc in bleed_transformations:
+				combined_page.show_pdf_page(
+					dest, 
+					doc,  # input document
+					page.number,  # input page number
+					#keep_proportion=False,
+					clip=clip,
+				)
 
-            # Top Right bleed
-            dest = fitz.Rect(width+bleed, 0, width+2*bleed, bleed)
-            clip = fitz.Rect(0, height-bleed, bleed, height)
+		# Ottieni lo stream del documento combinato
+		output_stream = io.BytesIO()
+		combined_document.save(output_stream)
+		output_stream.seek(0)
 
-            combined_page.show_pdf_page(
-                dest, 
-                b_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
+		return output_stream.getvalue()
 
-            # Bottom Left bleed
-            dest = fitz.Rect(0, height+bleed, bleed, height+2*bleed)
-            clip = fitz.Rect(width-bleed, 0, width, bleed)
-
-            combined_page.show_pdf_page(
-                dest, 
-                b_mirrored,  # input document
-                page.number,  # input page number
-                clip=clip,
-            )
-
-        # Ottieni lo stream del documento combinato
-        output_stream = io.BytesIO()
-        combined_document.save(output_stream)
-        output_stream.seek(0)
-
-        return output_stream.getvalue()
-
-# Utilizzo della classe Bleeder
-if __name__ == "__main__":
-    # Esempio di stream di documenti PDF
-    document_stream = b'...'  # Stream del documento originale
-    v_mirrored_stream = b'...'  # Stream del documento con mirror verticale
-    h_mirrored_stream = b'...'  # Stream del documento con mirror orizzontale
-    b_mirrored_stream = b'...'  # Stream del documento con mirror su entrambi gli assi
-
-    # Creazione dell'istanza della classe Bleeder
-    bleeder = Bleeder(document_stream, v_mirrored_stream, h_mirrored_stream, b_mirrored_stream)
-
-    # Combina i documenti e ottiene lo stream del documento combinato
-    combined_document_stream = bleeder.combine_documents()
-
-    # Ora puoi utilizzare combined_document_stream come desideri
