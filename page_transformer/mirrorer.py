@@ -35,10 +35,9 @@ class PDFMirrorer:
 	@staticmethod
 	def _mirror_page(page, horizontal, vertical):
 		mirrored_page = page
-		if horizontal:
-			mirrored_page.scale(-1, 1)  # Specchia orizzontalmente la pagina
-		if vertical:
-			mirrored_page.scale(1, -1)  # Specchia verticalmente la pagina
+		scale_x = -1 if horizontal else 1
+		scale_y = -1 if vertical else 1
+		mirrored_page.scale(scale_x, scale_y)
 		return mirrored_page
 
 # Utilizzo della classe PDFMirror
