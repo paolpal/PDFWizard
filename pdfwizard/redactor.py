@@ -43,7 +43,8 @@ class PDFRedactor:
             # Itera su tutti i quads trovati sulla pagina
             for rect in draft:
                 # Aggiunge un'annotazione di redazione per ciascun quad trovato
-                annot = page.add_redact_annot(rect)
+                annot = page.add_redact_annot(rect-2) # STRANO FIX PER UN CASO
+                # il -2 non so cosa faccia, ma corregge il problema che riscontravo. Potrebbe non servire sempre.
 
             # Applica le redazioni
             page.apply_redactions(images=3)
