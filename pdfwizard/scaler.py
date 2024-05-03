@@ -14,12 +14,6 @@ class PDFScaler:
 			page_sizes = json.load(file)
 		return page_sizes
 
-	def get_offset(self):
-		return self.dx, self.dy
-
-	def get_ratio(self):
-		return self.ratio
-
 	def scale(self, size):
 		# Crea un nuovo documento vuoto
 		scaled_document = fitz.open()
@@ -33,9 +27,9 @@ class PDFScaler:
 			width = page.rect.width
 			height = page.rect.height
 
-			self.ratio = min(target_width/width, target_height/height)
-			self.dx = abs(self.ratio*width-target_width)/2
-			self.dy = abs(self.ratio*height-target_height)/2
+			ratio = min(target_width/width, target_height/height)
+			self.dx = abs(ratio*width-target_width)/2
+			self.dy = abs(ratio*height-target_height)/2
 
 
 			# Applica lo scaling alla pagina corrente

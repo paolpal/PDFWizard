@@ -3,6 +3,22 @@ from tqdm import tqdm
 import pypdf
 
 class PDFMirrorer:
+	"""
+	Classe per la specchiatura di un PDF.
+
+    Utilizza PyPDF per specchiare le pagine all'interno di un file PDF.
+
+	Utilizzo della classe PDFMirror:
+
+	>>> with open("input.pdf", "rb") as input_file:
+	>>>		input_stream = input_file.read()
+	>>> pdf_mirror = PDFMirror(input_stream)
+	>>> output_stream_horizontal = pdf_mirror.mirror_horizontally()
+	>>> output_stream_vertical = pdf_mirror.mirror_vertically()
+	>>> output_stream_both = pdf_mirror.mirror_both()
+
+	"""
+
 	def __init__(self, input_stream):
 		self.input_stream = input_stream
 
@@ -40,19 +56,3 @@ class PDFMirrorer:
 		mirrored_page.scale(scale_x, scale_y)
 		return mirrored_page
 
-# Utilizzo della classe PDFMirror
-#with open("input.pdf", "rb") as input_file:
-#	input_stream = input_file.read()
-
-#pdf_mirror = PDFMirror(input_stream)
-
-# Specchiamento orizzontale
-#output_stream_horizontal = pdf_mirror.mirror_horizontally()
-
-# Specchiamento verticale
-#output_stream_vertical = pdf_mirror.mirror_vertically()
-
-# Specchiamento sia orizzontale che verticale
-#output_stream_both = pdf_mirror.mirror_both()
-
-# Scrivere gli output_stream in file o utilizzarli come richiesto

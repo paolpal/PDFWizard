@@ -10,22 +10,21 @@ class PDFRedactor:
 
     Esempi di utilizzo:
 
-    >>> redactor = PDFRedactor()
     >>> with open('input.pdf', 'rb') as input_stream:
-    >>>     redacted_pdf = redactor.remove_mark(input_stream, "testo da rimuovere")
+    >>>     redactor = PDFRedactor(input_stream)
+    >>>     redacted_pdf = redactor.remove_mark("testo da rimuovere")
     >>> with open('output.pdf', 'wb') as output_stream:
     >>>     output_stream.write(redacted_pdf)
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, input_stream):
+        self.input_stream = input_stream
 
-    def remove_mark(self, input_stream, needle):
+    def remove_mark(self, needle):
         """
         Rimuove il testo specificato da un PDF.
 
         Parametri:
-            input_stream (bytes): Stream di input del file PDF.
             needle (str): Testo da cercare e rimuovere.
 
         Restituisce:
@@ -33,10 +32,10 @@ class PDFRedactor:
         """
 
         # Carica il byte stream in un documento PDF utilizzando PyMuPDF (fitz)
-        doc = fitz.open(stream=input_stream, filetype="pdf")
+        doc = fitz.open(stream=self.input_stream, filetype="pdf")
 
         # Itera su tutte le pagine del documento
-        for page in tqdm(doc, desc="Ricerca del testo"):
+        for page in tqdm(doc, desc="Redacting"):
             # Cerca la posizione del testo su questa pagina
             draft = page.search_for(needle, quads=True)
 

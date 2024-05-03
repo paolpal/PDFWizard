@@ -1,18 +1,24 @@
 import fitz
 from tqdm import tqdm
 import io
+from pdfwizard.mirrorer import PDFMirrorer
 
 class PDFBleeder:
-	def __init__(self, document_stream, v_mirrored_stream, h_mirrored_stream, b_mirrored_stream):
+	# usa il mirrorer direttamente dentro alla classe
+	# passa solo il documento originale
+	def __init__(self, document_stream, original_stream=None):
 		self.document_stream = document_stream
-		self.v_mirrored_stream = v_mirrored_stream
-		self.h_mirrored_stream = h_mirrored_stream
-		self.b_mirrored_stream = b_mirrored_stream
+		if original_stream is None:
+			original_stream = document_stream
+		mirrorer = PDFMirrorer(original_stream)
+		self.v_mirrored_stream = mirrorer.mirror_vertically()
+		self.h_mirrored_stream = mirrorer.mirror_horizontally()
+		self.b_mirrored_stream = mirrorer.mirror_both()
 
 	def create_document(self, stream):
 		return fitz.open(stream=stream, filetype="pdf")
 
-	def bleeding(self, bleed, ratio=1):
+	def bleeding(self, bleed):
 		# Crea i documenti da ogni stream
 		document = self.create_document(self.document_stream)
 		v_mirrored = self.create_document(self.v_mirrored_stream)
@@ -29,6 +35,8 @@ class PDFBleeder:
 
 			original_width = h_mirrored[page.number].rect.width
 			original_height = h_mirrored[page.number].rect.height
+
+			ratio = min(target_width/original_width, target_height/original_height)
 			
 			dx = abs(ratio*original_width-target_width)/2
 			dy = abs(ratio*original_height-target_height)/2
@@ -90,7 +98,6 @@ class PDFBleeder:
 					dest, 
 					doc,  # input document
 					page.number,  # input page number
-					#keep_proportion=False,
 					clip=clip,
 				)
 
