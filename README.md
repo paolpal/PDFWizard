@@ -21,7 +21,7 @@ This repository contains Python scripts for editing PDF files, particularly focu
 
 ## Dependencies
 - PyMuPDF
-- PyPDF2
+- PyPDF
 - tqdm
 
 ## Note
