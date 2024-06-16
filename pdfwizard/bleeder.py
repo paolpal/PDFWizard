@@ -94,12 +94,13 @@ class PDFBleeder:
 			]
 
 			for dest, clip, doc in bleed_transformations:
-				combined_page.show_pdf_page(
-					dest, 
-					doc,  # input document
-					page.number,  # input page number
-					clip=clip,
-				)
+				if not dest.is_empty and not clip.is_empty:
+					combined_page.show_pdf_page(
+						dest, 
+						doc,  # input document
+						page.number,  # input page number
+						clip=clip,
+					)
 
 		# Ottieni lo stream del documento combinato
 		output_stream = io.BytesIO()

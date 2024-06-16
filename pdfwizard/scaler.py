@@ -1,20 +1,22 @@
 import fitz
 import json
 import io
+import os
 from tqdm import tqdm
 
 class PDFScaler:
 	def __init__(self, input_stream):
 		self.input_stream = input_stream
-		self.page_sizes = self.load_page_sizes("configuration/page_sizes.json")
+		self.page_sizes = self._load_page_sizes()
 
-	def load_page_sizes(self, config_file):
-		# Leggi le dimensioni delle pagine dal file di configurazione
-		with open(config_file, "r") as file:
-			page_sizes = json.load(file)
-		return page_sizes
+	def _load_page_sizes(self):
+		config_path = os.path.join(os.path.dirname(__file__), '..', 'configuration', 'page_sizes.json')
+		with open(config_path, 'r') as f:
+			return json.load(f)
 
 	def scale(self, size):
+		if size not in self.page_sizes:
+			raise ValueError(f"Dimensione '{size}' non valida. Le dimensioni valide sono: {', '.join(self.page_sizes.keys())}")
 		# Crea un nuovo documento vuoto
 		scaled_document = fitz.open()
 		target_width, target_height = self.page_sizes[size]
