@@ -10,14 +10,45 @@ This repository contains Python scripts for editing PDF files, particularly focu
    - **scaler.py:** PDFScaler modify the page size of every page of the pdf using PyMuPDF (fitz).
    - **bleeder.py:** PDFBleeder adds the bleed margin to the pdf.
    
-2. **main.py:** This script is an example implementation demonstrating how to utilize the functionality provided by the pdfwizard scripts to edit PDF files.
+2. **main.py:** This script serves as a program that exposes the functionalities provided by the pdfwizard scripts for editing PDF files. It demonstrates how to utilize these functionalities effectively.
 
 ## Usage
-- Ensure you have Python installed on your system.
-- Install the required dependencies listed in the `requirements.txt` file using pip.
-- Place the PDF file you want to edit in the same directory as the scripts.
-- Modify the `main.py` script according to your requirements, specifying the input PDF file name, the mark to remove (if using PDFRedactor), the desired page size (if using PDFScaler), and bleeding value (if using PDFBleeder).
-- Run the `main.py` script, which will process the input PDF file according to the specified modifications and generate an output PDF file.
+
+To use the PDF transformation tool, run the script `main.py` with the following command-line arguments:
+
+```bash
+python main.py -i input.pdf -o output.pdf -n "string_to_remove" -s Letter -b 9 --no-bleed
+```
+
+### Command-line arguments:
+- `-i, --input`: Specify the input PDF file.
+- `-o, --output`: Specify the output PDF file (default: out.pdf if not specified).
+- `-n, --needle`: Optional. Specify a string to remove from the PDF pages.
+- `-s, --size`: Optional. Specify the page size for resizing the PDF (Letter, Legal, etc.).
+- `-b, --bleed`: Optional. Specify the bleed value for PDF pages (default: 0).
+- `--no-bleed`: Optional flag. Disable bleeding for PDF pages.
+
+### Examples
+1. Resize a PDF to A4 size:
+
+```bash
+python main.py -i input.pdf -s A4
+```
+2. Remove a watermark from a PDF:
+
+```bash
+python main.py -i input.pdf -n "Confidential"
+```
+3. Apply bleeding and resize a PDF:
+
+```bash
+python main.py -i input.pdf -s A4 -b 5
+```
+
+### Notes:
+At least one of -n, -s, or -b must be provided for the tool to perform any action.
+If -o is not specified, the output PDF will default to out.pdf.
+Ensure all paths to PDF files are correctly specified.
 
 ## Dependencies
 - PyMuPDF
