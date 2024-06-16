@@ -16,7 +16,7 @@ This repository contains Python scripts for editing PDF files, particularly focu
 ## Installation
 
 ```sh
-git clone https://github.com/your-username/PDFWizard.git
+git clone git@github.com:paolpal/PDFWizard.git
 cd PDFWizard
 pip install .
 ```
