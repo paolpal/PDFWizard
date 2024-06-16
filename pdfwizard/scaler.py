@@ -10,13 +10,13 @@ class PDFScaler:
 		self.page_sizes = self._load_page_sizes()
 
 	def _load_page_sizes(self):
-		config_path = os.path.join(os.path.dirname(__file__), '..', 'configuration', 'page_sizes.json')
+		config_path = os.path.join(os.path.dirname(__file__), 'config', 'sizes.json')
 		with open(config_path, 'r') as f:
 			return json.load(f)
 
 	def scale(self, size):
 		if size not in self.page_sizes:
-			raise ValueError(f"Dimensione '{size}' non valida. Le dimensioni valide sono: {', '.join(self.page_sizes.keys())}")
+			raise ValueError(f"Invalid size '{size}'. Valid sizes are: {', '.join(self.page_sizes.keys())}")
 		# Crea un nuovo documento vuoto
 		scaled_document = fitz.open()
 		target_width, target_height = self.page_sizes[size]

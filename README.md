@@ -12,12 +12,27 @@ This repository contains Python scripts for editing PDF files, particularly focu
    
 2. **main.py:** This script serves as a program that exposes the functionalities provided by the pdfwizard scripts for editing PDF files. It demonstrates how to utilize these functionalities effectively.
 
+## Installation
+
+```sh
+git clone https://github.com/your-username/PDFWizard.git
+cd PDFWizard
+pip install .
+```
+
+### Uninstall
+To uninstall PDFWizard, run:
+
+```sh
+pip uninstall pdfwizard
+```
+
 ## Usage
 
 To use the PDF transformation tool, run the script `main.py` with the following command-line arguments:
 
 ```bash
-python main.py -i input.pdf -o output.pdf -n "string_to_remove" -s Letter -b 9 --no-bleed
+pdfwizard -i input.pdf -o output.pdf -n "string_to_remove" -s Letter -b 9 --no-bleed
 ```
 
 ### Command-line arguments:
@@ -32,17 +47,17 @@ python main.py -i input.pdf -o output.pdf -n "string_to_remove" -s Letter -b 9 -
 1. Resize a PDF to A4 size:
 
 ```bash
-python main.py -i input.pdf -s A4
+pdfwizard -i input.pdf -s A4
 ```
 2. Remove a watermark from a PDF:
 
 ```bash
-python main.py -i input.pdf -n "Confidential"
+pdfwizard -i input.pdf -n "Confidential"
 ```
 3. Apply bleeding and resize a PDF:
 
 ```bash
-python main.py -i input.pdf -s A4 -b 5
+pdfwizard -i input.pdf -s A4 -b 5
 ```
 
 ### Notes:
