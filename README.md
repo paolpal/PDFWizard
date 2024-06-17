@@ -9,9 +9,7 @@ This repository contains Python scripts for editing PDF files, particularly focu
    - **redactor.py:** PDFRedactor removes specific marks from PDF documents using PyMuPDF (fitz).
    - **scaler.py:** PDFScaler modifies the page size of every page of the PDF using PyMuPDF (fitz).
    - **bleeder.py:** PDFBleeder adds the bleed margin to the PDF.
-   - **__main__.py:** This script serves as a program that exposes the functionalities provided by the pdfwizard scripts for editing PDF files. It demonstrates how to utilize these functionalities effectively.
-   - **config:** Directory containing configuration files.
-      - **sizes.json:** JSON file containing page sizes.
+   - **\_\_main\_\_.py:** This script serves as a program that exposes the functionalities provided by the pdfwizard scripts for editing PDF files. It demonstrates how to utilize these functionalities effectively.
 
 ## Installation
 
@@ -30,7 +28,7 @@ pip uninstall pdfwizard
 
 ## Usage
 
-To use the PDF transformation tool, run the script `main.py` with the following command-line arguments:
+To use the PDF transformation tool, run `pdfwizard` with the following command-line arguments:
 
 ```bash
 pdfwizard -i input.pdf -o output.pdf -n "string_to_remove" -s Letter -b 9 --no-bleed
