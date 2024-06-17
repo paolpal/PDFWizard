@@ -5,21 +5,47 @@ import os
 from tqdm import tqdm
 
 class PDFScaler:
+	page_sizes = {
+		"Letter": [612, 792],
+		"Legal": [612, 1008],
+		"Ledger": [792, 1224],
+		"Tabloid": [1224, 792],
+		"A0": [2384, 3370],
+		"A1": [1684, 2384],
+		"A2": [1190, 1684],
+		"A3": [842, 1190],
+		"A4": [595, 842],
+		"A5": [420, 595],
+		"A6": [298, 420],
+		"A7": [210, 298],
+		"A8": [148, 210]
+	}
+
 	def __init__(self, input_stream):
 		self.input_stream = input_stream
-		self.page_sizes = self._load_page_sizes()
+		self.page_sizes = {
+			"Letter": [612, 792],
+			"Legal": [612, 1008],
+			"Ledger": [792, 1224],
+			"Tabloid": [1224, 792],
+			"A0": [2384, 3370],
+			"A1": [1684, 2384],
+			"A2": [1190, 1684],
+			"A3": [842, 1190],
+			"A4": [595, 842],
+			"A5": [420, 595],
+			"A6": [298, 420],
+			"A7": [210, 298],
+			"A8": [148, 210]
+		}
 
-	def _load_page_sizes(self):
-		config_path = os.path.join(os.path.dirname(__file__), 'config', 'sizes.json')
-		with open(config_path, 'r') as f:
-			return json.load(f)
 
 	def scale(self, size):
-		if size not in self.page_sizes:
+		if size not in PDFScaler.page_sizes:
 			raise ValueError(f"Invalid size '{size}'. Valid sizes are: {', '.join(self.page_sizes.keys())}")
 		# Crea un nuovo documento vuoto
 		scaled_document = fitz.open()
-		target_width, target_height = self.page_sizes[size]
+		target_width, target_height = PDFScaler.page_sizes[size]
 		# Apri il documento PDF di input
 		document = fitz.open(stream=self.input_stream, filetype="pdf")
 

@@ -41,6 +41,9 @@ def main():
     if not (args.needle or args.size or args.bleed):
         parser.error("At least one of --needle, --size, or --bleed must be specified.")
 
+    if args.size not in PDFScaler.page_sizes.keys():
+        parser.error(f"Invalid size '{args.size}'. Valid sizes are: {', '.join(PDFScaler.page_sizes.keys())}")
+
     try:
         process_pdf(args.input, args.output, args.needle, args.size, args.bleed, args.no_bleed)
     except ValueError as e:
